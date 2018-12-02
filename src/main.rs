@@ -1,3 +1,6 @@
+mod day_1;
+
 fn main() {
-    println!("Hello, world!");
+
+    println!("Day 1: {}, ", day_1::star_1());
 }
