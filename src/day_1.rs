@@ -5,6 +5,7 @@ const INPUT: &str = "+11, +9, +15, -17, +8, +16, +5, +13, +8, -6, +12, -17, -16,
 //const INPUT: &str = "+3, +3, +4, -2, -4"; //10
 //const INPUT: &str = "-6, +3, +8, +5, -6"; //5
 //const INPUT: &str = "+7, +7, -2, -7, -4"; //14
+//const INPUT: &str = "+6, +1, +4, -3, -4"; //step 4 6
 
 pub fn star_1() -> i32 {
     let numbers = INPUT.split(",");
@@ -24,30 +25,52 @@ pub fn star_2() -> i32 {
         .map(|x| x.trim().parse::<i32>().expect("Can not parse!"))
         .collect::<Vec<i32>>();
 
-    let mut sum: i32 = 0;
     let mut sum_list: Vec<i32> = Vec::new();
+    sum_list.push(0);
     //Vector mit Zwischensummen
-    for number in numbers {
-        sum += number;
+    for number in &numbers[0..numbers.len()-1] {
+        let sum = number + sum_list.last().expect("Kein Element in der Liste");
         sum_list.push(sum);
     }
+    println!("{:?}", sum_list);
 
     let step = star_1();
+    if step > 0 {
+        //Bildung der Differenzen
+        let mut divisor = i32::max_value();
+        let mut bigger_value_index = usize::max_value();
+        let mut value = 0;
+        for x in 0..(sum_list.len() - 1) {
+            for y in (x + 1)..sum_list.len() {
+                let diff = (sum_list[x] - sum_list[y]).abs();
+                if (diff % step) == 0 {
+                    //println!("Diff: {:?} x: {:?} y: {:?}", diff, x, y);
+                    if (diff / step) < divisor {
+                        divisor = diff / step;
+                        bigger_value_index = usize::max_value();
+                        println!("Divisor: {:?} Index: {:?} Value1: {:?} Value2: {:?} x: {:?} y: {:?}", divisor, bigger_value_index, sum_list[x], sum_list[y], x, y);
+                    } else if (diff / step) == divisor {
+                        if sum_list[x] > sum_list[y] {
+                            if y < bigger_value_index {
+                                bigger_value_index = y;
+                                value = sum_list[x];
+                            }
 
-    //Bildung der Differenzen
-    let mut divisor = i32::max_value();
-    let mut value = 0;
-    for x in 0..(sum_list.len() - 1) {
-        for y in (x + 1)..sum_list.len() {
-            let diff = (sum_list[x] - sum_list[y]).abs();
-            if (diff % step) == 0 {
-                if diff / step < divisor {
-                    divisor = diff / step;
-                    value = sum_list[y];
+                        }
+                        else {
+                            if x < bigger_value_index {
+                                bigger_value_index = x;
+                                value = sum_list[y];
+                            }
+
+                        }
+                        println!("Divisor: {:?} Index: {:?} Value1: {:?} Value2: {:?} x: {:?} y: {:?}", divisor, bigger_value_index, sum_list[x], sum_list[y], x, y);
+                    }
                 }
             }
         }
+        value
+    } else {
+        0 //das ist falsch es muss das Array mindestens einmal durchsucht werden
     }
-
-    value
 }
