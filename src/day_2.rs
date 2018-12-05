@@ -1,3 +1,4 @@
+use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -37,6 +38,36 @@ pub fn star_1() -> u32 {
     counter[0] * counter[1]
 }
 
-pub fn star_2() -> i32 {
-    0
+pub fn star_2() -> String {
+    let contents =
+        fs::read_to_string("./input/day_2.txt").expect("Something went wrong reading the file");
+
+    let mut common_chars = String::new();
+
+    for line1 in contents.lines() {
+
+        for line2 in contents.lines() {
+            if line1 != line2 {
+                // String Position für String Position vergleichen
+                let mut found = true;
+                let mut different_positions = 0;
+                for (character1, character2) in line1.chars().zip(line2.chars()) {
+                    if character1 != character2 {
+                        different_positions += 1;
+                    } else {
+                        common_chars.push(character1);
+                    }
+                    if different_positions > 1 {
+                        found = false;
+                        break;
+                    }
+                }
+                if found {
+                    return common_chars;
+                }
+                common_chars.clear();
+            }
+        }
+    }
+    common_chars
 }
