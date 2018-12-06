@@ -49,7 +49,6 @@ pub fn star_2() -> String {
         for line2 in contents.lines() {
             if line1 != line2 {
                 // String Position für String Position vergleichen
-                let mut found = true;
                 let mut different_positions = 0;
                 for (character1, character2) in line1.chars().zip(line2.chars()) {
                     if character1 != character2 {
@@ -58,11 +57,10 @@ pub fn star_2() -> String {
                         common_chars.push(character1);
                     }
                     if different_positions > 1 {
-                        found = false;
                         break;
                     }
                 }
-                if found {
+                if different_positions == 1 {
                     return common_chars;
                 }
                 common_chars.clear();
