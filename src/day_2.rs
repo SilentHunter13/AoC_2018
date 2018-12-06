@@ -45,7 +45,6 @@ pub fn star_2() -> String {
     let mut common_chars = String::new();
 
     for line1 in contents.lines() {
-
         for line2 in contents.lines() {
             if line1 != line2 {
                 // String Position für String Position vergleichen
