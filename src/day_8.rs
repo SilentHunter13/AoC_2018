@@ -26,6 +26,10 @@ fn parse_element(element: &mut VecDeque<u32>) -> u32 {
         0
     };
 
+    metadata_sum(element, child_count, metadata_count)
+}
+
+fn metadata_sum(element: &mut VecDeque<u32>, child_count: u32, metadata_count: u32) -> u32 {
     let mut meta_sum = 0;
     for _ in 0..child_count {
         meta_sum += parse_element(element);
@@ -38,6 +42,5 @@ fn parse_element(element: &mut VecDeque<u32>) -> u32 {
             0
         };
     }
-
     meta_sum
 }
