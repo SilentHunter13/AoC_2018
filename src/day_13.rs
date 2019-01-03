@@ -20,6 +20,60 @@ struct Train {
 }
 
 pub fn star_1() -> (usize, usize) {
+    let (rails, mut trains) = parse_map();
+
+    //Züge simulieren
+    loop {
+        let mut new_trains: Vec<Train> = Vec::new();
+        let mut collision: Option<(usize, usize)> = None;
+        for (n, train) in trains.iter().enumerate() {
+            let new_train = train.step(&rails);
+            if trains[n..].contains(&new_train) || new_trains.contains(&new_train) {
+                collision = Some((new_train.x, new_train.y));
+                break;
+            }
+            new_trains.push(new_train);
+        }
+        if let Some(c) = collision {
+            break c;
+        }
+        new_trains.sort_unstable_by_key(|x| x.x);
+        new_trains.sort_by_key(|x| x.y);
+        trains = new_trains;
+    }
+}
+
+pub fn star_2() -> (usize, usize) {
+    let (rails, mut trains) = parse_map();
+
+    //Züge simulieren
+    loop {
+        let mut new_trains: Vec<Train> = Vec::new();
+        let mut deleted_trains: Vec<Train> = Vec::new();
+        for (n, train) in trains.iter().enumerate() {
+            if !deleted_trains.contains(&train) {
+                let new_train = train.step(&rails);
+
+                if trains[n..].contains(&new_train) {
+                    deleted_trains.push(new_train);
+                } else if new_trains.contains(&new_train) {
+                    new_trains.retain(|x| *x != new_train);
+                } else {
+                    new_trains.push(new_train);
+                }
+            }
+        }
+
+        if new_trains.len() == 1 {
+            break (new_trains[0].x, new_trains[0].y);
+        }
+        new_trains.sort_unstable_by_key(|x| x.x);
+        new_trains.sort_by_key(|x| x.y);
+        trains = new_trains;
+    }
+}
+
+fn parse_map() -> ([[Rail; MAP_SIZE]; MAP_SIZE], Vec<Train>) {
     let contents =
         fs::read_to_string("./input/day_13.txt").expect("Something went wrong reading the file");
 
@@ -81,26 +135,7 @@ pub fn star_1() -> (usize, usize) {
             }
         }
     }
-
-    //Züge simulieren
-    loop {
-        let mut new_trains: Vec<Train> = Vec::new();
-        let mut collision: Option<(usize, usize)> = None;
-        for (n, train) in trains.iter().enumerate() {
-            let new_train = train.step(&rails);
-            if trains[n..].contains(&new_train) || new_trains.contains(&new_train) {
-                collision = Some((new_train.x, new_train.y));
-                break;
-            }
-            new_trains.push(new_train);
-        }
-        if let Some(c) = collision {
-            break c;
-        }
-        new_trains.sort_unstable_by_key(|x| x.x);
-        new_trains.sort_by_key(|x| x.y);
-        trains = new_trains;
-    }
+    (rails, trains)
 }
 
 impl Train {
