@@ -1,4 +1,6 @@
 const PUZZLE_INPUT: &str = "760221";
+// const PUZZLE_INPUT: &str = "51589";
+// const PUZZLE_INPUT: &str = "59414";
 
 pub fn star_1() -> String {
     let mut board: Vec<usize> = vec![3, 7];
@@ -25,6 +27,36 @@ pub fn star_1() -> String {
         .iter()
         .map(|x| x.to_string())
         .collect::<String>()
+}
+
+pub fn star_2() -> usize {
+    let mut board: Vec<usize> = vec![3, 7];
+    let mut elf_1 = 0;
+    let mut elf_2 = 1;
+
+    loop {
+        let sum = board[elf_1] + board[elf_2];
+
+        let new_recipes = desintegrate(sum);
+        board.extend(new_recipes);
+
+        //Es wäre deutlich schneller, wenn der PUZZLE_INPUT in ein Vec<usize> geparsed würde und
+        //dann bei jedem Einfügen nur eine Stelle in dem Vec mit dem neuen Wert verglichen würde.
+        //Ähnlich einer StateMachine
+        if board.len() > 6 {
+            let last = board[board.len() - 7..]
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<String>();
+
+            if let Some(index) = last.find(PUZZLE_INPUT) {
+                break board.len() - 7 + index;
+            }
+        }
+
+        elf_1 = (elf_1 + board[elf_1] + 1) % board.len();
+        elf_2 = (elf_2 + board[elf_2] + 1) % board.len();
+    }
 }
 
 fn desintegrate(value: usize) -> Vec<usize> {
