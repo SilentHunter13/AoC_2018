@@ -1,0 +1,35 @@
+op    |x  x  x  x  x  x  x  x  x  x  x  x  x  x  x  x
+      [F, F, T, F, F, F, F, F, F, F, F, F, F, F, F, F],  x
+      [T, F, F, F, F, F, T, F, F, T, F, F, F, T, T, F],  x
+      [T, T, F, F, F, F, T, T, T, T, T, T, T, F, F, F],  x
+      [F, F, F, F, F, F, F, F, F, T, F, F, F, F, F, T],  x
+      [F, F, F, F, F, F, F, F, F, T, F, T, T, F, F, F],  x
+      [F, F, T, T, F, F, T, T, F, F, F, F, F, F, F, F],  x
+      [F, F, T, F, F, F, T, F, F, F, F, F, F, F, F, F],  x
+      [T, F, F, T, F, T, T, T, T, F, F, F, T, F, T, F],  x
+      [T, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F],  x
+      [T, T, T, T, T, T, T, T, T, T, T, T, T, F, F, F],  x
+      [F, F, F, F, F, F, F, F, F, F, F, F, F, T, F, F],  x
+      [F, F, F, F, F, F, F, F, F, T, T, T, T, T, T, T],  x
+      [F, T, T, F, F, F, T, T, F, F, F, F, F, F, F, F],  x
+      [F, F, F, F, F, F, F, F, F, T, F, T, F, F, F, T],  x
+      [F, T, F, F, F, F, T, T, F, T, F, F, F, F, F, F],  x
+      [F, F, F, F, F, F, T, T, F, F, F, F, F, F, F, F],  x
+
+
+addr    8
+addi    12
+mulr    0
+muli    5
+banr    9
+bani    7
+borr    6
+bori    15
+setr    2
+seti    14
+gtir    11
+gtri    13
+gtrr    4
+eqir    10
+eqri    1
+eqrr    3
