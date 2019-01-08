@@ -28,6 +28,20 @@ pub fn star_1() -> u32 {
     cpu.run_program(&programm)
 }
 
+pub fn star_2() -> u32 {
+    let mut divisor = 1;
+    let mut divisor_sum = 0;
+    loop {
+        if 10551340 % divisor == 0 {
+            divisor_sum += divisor;
+        }
+        divisor += 1;
+        if divisor > 10551340 {
+            break divisor_sum;
+        }
+    }
+}
+
 fn get_opcode(mnemonic: &str) -> u8 {
     match mnemonic {
         "addr" => 8,
