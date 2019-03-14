@@ -23,6 +23,14 @@ impl fmt::Display for AreaTypes {
 }
 
 pub fn star_1() -> u32 {
+    simulate_acres(10)
+}
+
+pub fn star_2() -> u32 {
+    simulate_acres(1000000000)
+}
+
+fn simulate_acres(minutes: i32) -> u32 {
     let contents =
         fs::read_to_string("./input/day_18.txt").expect("Something went wrong reading the file");
 
@@ -45,7 +53,7 @@ pub fn star_1() -> u32 {
         }
     }
 
-    for _ in 0..10 {
+    for _ in 0..minutes {
         let mut new_area: HashMap<(i32, i32), AreaTypes> = HashMap::new();
         for x in 0..AREA_SIZE {
             for y in 0..AREA_SIZE {
