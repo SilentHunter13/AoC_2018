@@ -1,6 +1,8 @@
 use regex::Regex;
-use std::collections::HashMap;
 use std::fs;
+
+const WIDTH: usize = 1000;
+const HEIGHT: usize = 1000;
 
 struct Claim {
     id: u32,
@@ -17,25 +19,25 @@ pub fn star_1() -> u32 {
     let contents =
         fs::read_to_string("./input/day_3.txt").expect("Something went wrong reading the file");
 
-    let mut fabric: HashMap<(u32, u32), u32> = HashMap::new();
+    let mut fabric: [u32; WIDTH * HEIGHT] = [0; WIDTH * HEIGHT];
 
     for line in contents.lines() {
         let claim_match = claim_re.captures(line).unwrap();
 
-        let x = claim_match[2].parse::<u32>().unwrap();
-        let y = claim_match[3].parse::<u32>().unwrap();
+        let claim_x = claim_match[2].parse::<u32>().unwrap();
+        let claim_y = claim_match[3].parse::<u32>().unwrap();
         let width = claim_match[4].parse::<u32>().unwrap();
         let height = claim_match[5].parse::<u32>().unwrap();
 
-        for current_x in x..x + width {
-            for current_y in y..y + height {
-                *fabric.entry((current_x, current_y)).or_insert(0) += 1;
+        for current_y in claim_y..claim_y + height {
+            for current_x in claim_x..claim_x + width {
+                fabric[current_x as usize + (current_y as usize * WIDTH)] += 1;
             }
         }
     }
 
     let mut double_claims = 0;
-    for value in fabric.values() {
+    for value in fabric.iter() {
         if *value > 1 {
             double_claims += 1;
         }
@@ -50,7 +52,7 @@ pub fn star_2() -> u32 {
     let contents =
         fs::read_to_string("./input/day_3.txt").expect("Something went wrong reading the file");
 
-    let mut fabric: HashMap<(u32, u32), u32> = HashMap::new();
+    let mut fabric: [u32; WIDTH * HEIGHT] = [0; WIDTH * HEIGHT];
     let mut claim_list: Vec<Claim> = Vec::new();
 
     for line in contents.lines() {
@@ -64,9 +66,9 @@ pub fn star_2() -> u32 {
             height: claim_match[5].parse::<u32>().unwrap(),
         };
 
-        for current_x in claim.x..claim.x + claim.width {
-            for current_y in claim.y..claim.y + claim.height {
-                *fabric.entry((current_x, current_y)).or_insert(0) += 1;
+        for current_y in claim.y..claim.y + claim.height {
+            for current_x in claim.x..claim.x + claim.width {
+                fabric[current_x as usize + (current_y as usize * WIDTH)] += 1;
             }
         }
         claim_list.push(claim);
@@ -74,9 +76,9 @@ pub fn star_2() -> u32 {
 
     let mut found = true;
     for claim in claim_list.iter() {
-        for current_x in claim.x..claim.x + claim.width {
-            for current_y in claim.y..claim.y + claim.height {
-                if *fabric.get(&(current_x, current_y)).unwrap() != 1 {
+        for current_y in claim.y..claim.y + claim.height {
+            for current_x in claim.x..claim.x + claim.width {
+                if fabric[current_x as usize + (current_y as usize * WIDTH)] != 1 {
                     found = false;
                 }
             }
