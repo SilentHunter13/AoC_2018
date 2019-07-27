@@ -70,7 +70,7 @@ pub fn star_1() -> u32 {
                     for minute in sleep_start..record.minute {
                         *guards
                             .entry(guard_on_duty)
-                            .or_insert(HashMap::new())
+                            .or_insert_with(HashMap::new)
                             .entry(minute)
                             .or_insert(0) += 1;
                     }
@@ -98,7 +98,7 @@ pub fn star_1() -> u32 {
             }
         }
     }
-    max_guard as u32 * max_minute as u32
+    u32::from(max_guard) * u32::from(max_minute)
 }
 
 pub fn star_2() -> u32 {
@@ -153,7 +153,7 @@ pub fn star_2() -> u32 {
                     for minute in sleep_start..record.minute {
                         *guards
                             .entry(guard_on_duty)
-                            .or_insert(HashMap::new())
+                            .or_insert_with(HashMap::new)
                             .entry(minute)
                             .or_insert(0) += 1;
                     }
@@ -174,5 +174,5 @@ pub fn star_2() -> u32 {
             }
         }
     }
-    max_guard as u32 * max_minute as u32
+    u32::from(max_guard) * u32::from(max_minute)
 }
