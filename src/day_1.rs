@@ -11,14 +11,14 @@ const INPUT: &str = "+11, +9, +15, -17, +8, +16, +5, +13, +8, -6, +12, -17, -16,
 
 pub fn star_1() -> i32 {
     INPUT
-        .split(",")
+        .split(',')
         .map(|x| x.trim().parse::<i32>().expect("Can not parse!"))
         .sum()
 }
 
 pub fn star_2() -> i32 {
     let numbers = INPUT
-        .split(",")
+        .split(',')
         .map(|x| x.trim().parse::<i32>().expect("Can not parse!"))
         .collect::<Vec<i32>>();
 
