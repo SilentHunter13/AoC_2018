@@ -51,7 +51,7 @@ pub fn star_2() -> u32 {
         fs::read_to_string("./input/day_3.txt").expect("Something went wrong reading the file");
 
     let mut fabric: HashMap<(u32, u32), u32> = HashMap::new();
-    let mut claim_list :Vec<Claim> = Vec::new();
+    let mut claim_list: Vec<Claim> = Vec::new();
 
     for line in contents.lines() {
         let claim_match = claim_re.captures(line).unwrap();
@@ -82,7 +82,7 @@ pub fn star_2() -> u32 {
             }
         }
 
-        if found == true {
+        if found {
             return claim.id;
         } else {
             found = true;

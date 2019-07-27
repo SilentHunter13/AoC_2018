@@ -28,10 +28,10 @@ pub fn star_1() -> u32 {
             }
         }
 
-        if result_tuple.0 == true {
+        if result_tuple.0 {
             counter[0] += 1;
         }
-        if result_tuple.1 == true {
+        if result_tuple.1 {
             counter[1] += 1;
         }
     }
