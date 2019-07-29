@@ -1,73 +1,59 @@
-use std::fs;
 
+use std::collections::VecDeque;
+use std::fs;
 pub fn star_1() -> usize {
     let contents =
         fs::read_to_string("./input/day_5.txt").expect("Something went wrong reading the file");
 
-    let mut polymers = Vec::from(contents.trim().as_bytes());
+    let mut polymer_before = VecDeque::from(Vec::from(contents.trim().as_bytes()));
 
-    loop {
-        let mut triggered_units: Vec<usize> = Vec::new();
-        let mut skip = false;
-        for i in 1..polymers.len() {
-            if !skip {
-                let diff: i16 = (polymers[i - 1] as i16 - polymers[i] as i16).abs();
-                if diff == 0x20 {
-                    triggered_units.push(i - 1);
-                    skip = true;
-                }
-            } else {
-                skip = false;
+    let mut polymer_after: Vec<u8> = Vec::new();
+
+    while let Some(right) = polymer_before.pop_front() {
+        if let Some(left) = polymer_after.pop() {
+            let diff: i16 = (i16::from(left) - i16::from(right)).abs();
+
+            if diff != 0x20 {
+                polymer_after.push(left);
+                polymer_after.push(right);
             }
-        }
-        if triggered_units.len() == 0 {
-            break;
-        }
 
-        for index in triggered_units.iter().rev() {
-            polymers.remove(*index);
-            polymers.remove(*index);
+        } else {
+            //rechts nach links
+            polymer_after.push(right);
         }
     }
 
-    polymers.len()
+    polymer_after.len()
 }
 
 pub fn star_2() -> usize {
     let contents =
         fs::read_to_string("./input/day_5.txt").expect("Something went wrong reading the file");
 
-    let original_polymers = Vec::from(contents.trim().as_bytes());
+    let original_polymer = Vec::from(contents.trim().as_bytes());
 
     let mut min_length = usize::max_value();
     for char in 0x41..0xB5 {
-        let mut polymers = original_polymers.clone();
-        polymers.retain(|x| (*x != char) && (*x != char + 0x20));
-        loop {
-            let mut triggered_units: Vec<usize> = Vec::new();
-            let mut skip = false;
-            for i in 1..polymers.len() {
-                if !skip {
-                    let diff: i16 = (polymers[i - 1] as i16 - polymers[i] as i16).abs();
-                    if diff == 0x20 {
-                        triggered_units.push(i - 1);
-                        skip = true;
-                    }
-                } else {
-                    skip = false;
-                }
-            }
-            if triggered_units.len() == 0 {
-                break;
-            }
+        let mut polymer_before = VecDeque::from(original_polymer.clone());
+        let mut polymer_after: Vec<u8> = Vec::new();
+        polymer_before.retain(|x| (*x != char) && (*x != char + 0x20));
+        while let Some(right) = polymer_before.pop_front() {
+            if let Some(left) = polymer_after.pop() {
+                let diff: i16 = (i16::from(left) - i16::from(right)).abs();
 
-            for index in triggered_units.iter().rev() {
-                polymers.remove(*index);
-                polymers.remove(*index);
+                if diff != 0x20 {
+                    polymer_after.push(left);
+                    polymer_after.push(right);
+                }
+
+            } else {
+                //rechts nach links
+                polymer_after.push(right);
             }
         }
-        if polymers.len() < min_length {
-            min_length = polymers.len();
+        if polymer_after.len() < min_length {
+            min_length = polymer_after.len();
         }
     }
 
