@@ -34,25 +34,35 @@ pub fn star_2() -> usize {
     let mut elf_1 = 0;
     let mut elf_2 = 1;
 
+    let sequence: Vec<usize> = PUZZLE_INPUT
+        .chars()
+        .map(|x| x.to_digit(10).expect("NaN") as usize)
+        .collect();
+
+    let mut next_index = 0;
+    let mut steps_taken = 2;
+
     loop {
         let sum = board[elf_1] + board[elf_2];
 
         let new_recipes = desintegrate(sum);
-        board.extend(new_recipes);
 
-        //Es wäre deutlich schneller, wenn der PUZZLE_INPUT in ein Vec<usize> geparsed würde und
-        //dann bei jedem Einfügen nur eine Stelle in dem Vec mit dem neuen Wert verglichen würde.
-        //Ähnlich einer StateMachine
-        if board.len() > 6 {
-            let last = board[board.len() - 7..]
-                .iter()
-                .map(|x| x.to_string())
-                .collect::<String>();
-
-            if let Some(index) = last.find(PUZZLE_INPUT) {
-                break board.len() - 7 + index;
+        for recipe in new_recipes.iter() {
+            if let Some(sequence_value) = sequence.get(next_index) {
+                if *recipe == *sequence_value {
+                    next_index += 1;
+                } else {
+                    next_index = 0;
+                }
+                steps_taken += 1;
             }
         }
+
+        if next_index >= sequence.len() {
+            break steps_taken - next_index;
+        }
+
+        board.extend(new_recipes);
 
         elf_1 = (elf_1 + board[elf_1] + 1) % board.len();
         elf_2 = (elf_2 + board[elf_2] + 1) % board.len();
