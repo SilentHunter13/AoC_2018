@@ -207,9 +207,9 @@ impl fmt::Display for Region {
             for w in 0..=self.width {
                 write!(f, "{}", self.region_type_get(w, h))?;
             }
-            writeln!(f, "")?;
+            writeln!(f)?;
         }
-        writeln!(f, "")
+        writeln!(f)
     }
 }
 

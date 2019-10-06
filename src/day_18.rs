@@ -78,11 +78,11 @@ impl Area {
 }
 
 pub fn star_1() -> u32 {
-    simulate_acres(10)
+    simulate_acres(10) //10 minutes
 }
 
 pub fn star_2() -> u32 {
-    simulate_acres(1000000000)
+    simulate_acres(1_000_000_000) //1000000000 minutes
 }
 
 fn simulate_acres(minutes: usize) -> u32 {

@@ -20,13 +20,13 @@ pub fn star_1() -> String {
         let letter = result[2].chars().nth(0).unwrap();
         let pre_step = result[1].chars().nth(0).unwrap(); //hier muss noch ein besserer Typ gefunden werden
 
-        steps.entry(letter).or_insert(Vec::new()).push(pre_step);
-        steps.entry(pre_step).or_insert(Vec::new());
+        steps.entry(letter).or_insert_with(Vec::new).push(pre_step);
+        steps.entry(pre_step).or_insert_with(Vec::new);
     }
 
     let mut step_sequence = String::new();
 
-    while steps.len() > 0 {
+    while !steps.is_empty() {
         //Schritt finden
         let mut founds: Vec<char> = Vec::new();
         for (letter, pre_steps) in steps.iter() {
@@ -67,13 +67,13 @@ pub fn star_2() -> u32 {
         let letter = result[2].chars().nth(0).unwrap();
         let pre_step = result[1].chars().nth(0).unwrap(); //hier muss noch ein besserer Typ gefunden werden
 
-        steps.entry(letter).or_insert(Vec::new()).push(pre_step);
-        steps.entry(pre_step).or_insert(Vec::new());
+        steps.entry(letter).or_insert_with(Vec::new).push(pre_step);
+        steps.entry(pre_step).or_insert_with(Vec::new);
     }
 
     let mut seconds = 0;
     let mut workers: HashMap<char, u8> = HashMap::new();
-    while steps.len() > 0 || workers.len() > 0 {
+    while !steps.is_empty() || !workers.is_empty() {
         //Zeit ablaufen lassen
         seconds += 1;
         for work in &mut workers {

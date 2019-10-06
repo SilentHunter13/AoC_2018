@@ -29,14 +29,15 @@ pub fn star_1() -> u32 {
 }
 
 pub fn star_2() -> u32 {
+    let calculated_during_setup = 10_551_340;
     let mut divisor = 1;
     let mut divisor_sum = 0;
     loop {
-        if 10551340 % divisor == 0 {
+        if calculated_during_setup % divisor == 0 {
             divisor_sum += divisor;
         }
         divisor += 1;
-        if divisor > 10551340 {
+        if divisor > calculated_during_setup {
             break divisor_sum;
         }
     }
@@ -72,7 +73,7 @@ struct Cpu {
 }
 
 impl Cpu {
-    fn run_program(&mut self, program: &Vec<(u8, [u8; 3])>) -> u32 {
+    fn run_program(&mut self, program: &[(u8, [u8; 3])]) -> u32 {
         loop {
             if let Some(op) = program.get(self.pc as usize) {
                 //pc in register schreiben

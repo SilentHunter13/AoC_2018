@@ -56,7 +56,7 @@ where
         loop {
             // Knoten mit dem geringsten f-Wert aus der Open List entfernen
             if let Some((current_node, _)) = self.open_list.iter().min_by_key(|x| ((*x).1).0) {
-                let copied_current_node = current_node.clone();
+                let copied_current_node = *current_node;
 
                 let (removed_current_node, (_, attr)) = self
                     .open_list

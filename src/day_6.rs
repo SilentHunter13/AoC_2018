@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fs;
 
 const THRESHOLD: u32 = 10000;
@@ -119,11 +120,15 @@ fn get_owner(places: &[(u32, u32)], x: u32, y: u32) -> Result<usize, ()> {
     for (i, place) in places.iter().enumerate() {
         let distance = x.max(place.0) - x.min(place.0) + y.max(place.1) - y.min(place.1);
 
-        if distance < min_distance {
-            min_distance = distance;
-            ret_val = Ok(i);
-        } else if distance == min_distance {
-            ret_val = Err(());
+        match distance.cmp(&min_distance) {
+            Ordering::Less => {
+                min_distance = distance;
+                ret_val = Ok(i);
+            }
+            Ordering::Equal => {
+                ret_val = Err(());
+            }
+            Ordering::Greater => {}
         }
     }
     ret_val

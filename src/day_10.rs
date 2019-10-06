@@ -37,8 +37,8 @@ pub fn star_1() {
     let mut last_height = get_height(&dots);
     let seconds = loop {
         for dot in dots.iter_mut() {
-            dot.x = dot.x + dot.x_dt;
-            dot.y = dot.y + dot.y_dt;
+            dot.x += dot.x_dt;
+            dot.y += dot.y_dt;
         }
         counter += 1;
         let height = get_height(&dots);
@@ -52,8 +52,8 @@ pub fn star_1() {
 
     //Wir waren einen Schritt zu weit deshalb wieder zurück simulieren
     for dot in dots.iter_mut() {
-        dot.x = dot.x - dot.x_dt;
-        dot.y = dot.y - dot.y_dt;
+        dot.x -= dot.x_dt;
+        dot.y -= dot.y_dt;
     }
 
     println!("Day 10:");
@@ -91,7 +91,7 @@ fn plot_dots(dots: &mut Vec<Dot>) {
     println!("{:?}", line.iter().collect::<String>());
 }
 
-fn get_height(dots: &Vec<Dot>) -> i32 {
+fn get_height(dots: &[Dot]) -> i32 {
     let y_min = dots.iter().min_by_key(|t| t.y).unwrap().y;
     let y_max = dots.iter().max_by_key(|t| t.y).unwrap().y;
 
