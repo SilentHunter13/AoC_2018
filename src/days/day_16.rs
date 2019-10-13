@@ -53,7 +53,7 @@ pub fn star_1() -> usize {
             op = (op_code, [in1, in2, out]);
         }
     }
-    println!("{:?}", possibilities);
+    //println!("{:?}", possibilities);
     answer
 }
 

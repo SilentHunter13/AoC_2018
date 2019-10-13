@@ -43,11 +43,11 @@ impl Bot {
             akt_x: self.radius,
             akt_y: 0,
             akt_z: 0,
-            sign_x: sign_x,
-            sign_y: sign_y,
-            sign_z: sign_z,
+            sign_x,
+            sign_y,
+            sign_z,
             start: true,
-            none: none,
+            none,
         }
     }
 }
@@ -81,19 +81,17 @@ impl Iterator for BotEdge {
                 z: self.sign_z * self.akt_z + self.position.z,
             });
         }
-        self.akt_x -= 1;
-        if self.akt_x < 0 {
-            self.akt_z += 1;
-            //println!("{:?}", self.akt_z);
-            if self.akt_z > self.radius {
-                return None;
-            }
-            self.akt_x = self.radius - self.akt_z;
+        //nur die Eckpunkte eines Dreiecks zurückgeben
+        if self.akt_x == self.radius {
+            self.akt_x = 0;
+            self.akt_y = self.radius;
+        } else if self.akt_y == self.radius {
             self.akt_y = 0;
+            self.akt_z = self.radius;
         } else {
-            self.akt_y += 1;
-            self.akt_z = self.radius - self.akt_x - self.akt_y;
+            return None;
         }
+        //es fehlen die Punkte in der nähe von Schnitten mit anderen Bots
 
         Some(Point {
             x: self.sign_x * self.akt_x + self.position.x,
@@ -103,7 +101,7 @@ impl Iterator for BotEdge {
     }
 }
 
-fn bots_in_range(point: &Point, bots: &Vec<Bot>) -> u32 {
+fn bots_in_range(point: &Point, bots: &[Bot]) -> u32 {
     bots.iter()
         .filter(|bot| bot.point_in_range(point))
         .fold(0, |sum, _| sum + 1)
@@ -145,7 +143,7 @@ pub fn star_2() -> i32 {
     //1 x; 2 y; 3 z; 4 Radius
     let bot_re = Regex::new("pos=<([-0-9]+),([-0-9]+),([-0-9]+)>, r=([0-9]+)").unwrap();
 
-    let contents = fs::read_to_string("./input/day_23_test2.txt")
+    let contents = fs::read_to_string("./input/day_23_test3.txt")
         .expect("Something went wrong reading the file");
 
     let mut bots = Vec::new();
@@ -166,7 +164,7 @@ pub fn star_2() -> i32 {
     let mut closeset_point: (Point, u32) = (Point { x: 0, y: 0, z: 0 }, 0);
 
     for bot in &bots {
-        println!("{:?}", bot);
+        //println!("{:?}", bot);
         //iterieren über die Punkte des Randes
         for point in bot.iter_edge() {
             //println!("{:?}", point);
@@ -185,7 +183,7 @@ pub fn star_2() -> i32 {
                 }
             }
         }
-        println!("{:?}", closeset_point);
+        //println!("{:?}", closeset_point);
     }
     closeset_point.0.distance(&Point { x: 0, y: 0, z: 0 })
 }

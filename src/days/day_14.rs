@@ -47,12 +47,13 @@ pub fn star_2() -> usize {
 
         let new_recipes = desintegrate(sum);
 
+        // Dieser algorithms funktioniert nicht für alle Eingaben
         for recipe in new_recipes.iter() {
             if let Some(sequence_value) = sequence.get(next_index) {
                 if *recipe == *sequence_value {
                     next_index += 1;
                 } else {
-                    next_index = 0;
+                    next_index = 0; // Hier müsste auch in new_recipes zurückgesprungen werden
                 }
                 steps_taken += 1;
             }

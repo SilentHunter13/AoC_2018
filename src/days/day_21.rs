@@ -63,3 +63,84 @@ pub fn star_1() -> usize {
 
     a
 }
+
+pub fn star_2() -> usize {
+    let mut a: u64 = 0;
+    let e = 12420065;
+    //let e = 0;
+    let mut inst_counter = 0;
+
+    loop {
+        let mut b = a | 0x10000;
+        a = 0xA354F2;
+
+        loop {
+            let mut c = b & 0xFF;
+            a = a + c;
+            a = a & 0xFFFFFF;
+            a = a * 0x1016b;
+            a = a & 0xFFFFFF;
+            //println!("a:{:?}  b:{:?}  c:{:?}", a, b, c);
+
+            inst_counter += 8;
+
+            if b >= 256 {
+                c = 0;
+                loop {
+                    let mut d = c + 1;
+                    d = d * 256;
+
+                    inst_counter += 5;
+
+                    if d > b {
+                        //println!("b:{:?}  c:{:?}  d:{:?}", b, c, d);
+                        b = c;
+                        inst_counter += 4;
+
+                        break;
+                    } else {
+                        c = c + 1;
+
+                        inst_counter += 3;
+                    }
+                }
+            } else {
+                inst_counter += 3;
+                break;
+            }
+        }
+        //println!("Inst: {:?}, {:?}", inst_counter, a);
+        if a == e {
+            break;
+        }
+    }
+    foo();
+    inst_counter
+}
+
+fn foo() {
+    let mut a: u64 = 0;
+    let e = 12420065;
+    //let e = 0;
+
+    loop {
+        let mut b = a | 0x10000;
+
+        a = 0xA354F2;
+        while b != 0 {
+            let c = b & 0xFF;
+            a = a + c;
+            a = a * 0x1016b;
+            a = a & 0xFFFFFF;
+
+            println!("{:?}", a);
+            b = b >> 8;
+        }
+
+        println!("Lösung: {:?}", a);
+        if a == e {
+            //println!("Lösung: {:?}", a);
+            break;
+        }
+    }
+}

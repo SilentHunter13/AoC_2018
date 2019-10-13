@@ -55,6 +55,7 @@ pub fn star_2() -> (i32, i32, i32) {
     (max_x + 1, max_y + 1, max_size) //x und y sind in Aufgabe 1 basiert
 }
 
+//Es könnte sein, dass das Vorberechnen keinen Geschwindigkeitsvorteil mehr bringt?
 fn get_grid() -> [[i32; 300]; 300] {
     let mut grid: [[i32; 300]; 300] = [[0; 300]; 300];
 
