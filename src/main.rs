@@ -1,15 +1,24 @@
-extern crate regex;
-
+mod algorithms;
 mod day_1;
 mod day_10;
+mod day_11;
+mod day_12;
+mod day_13;
+mod day_14;
+mod day_16;
+mod day_18;
+mod day_19;
 mod day_2;
 mod day_22;
+mod day_23;
 mod day_3;
 mod day_4;
 mod day_5;
 mod day_6;
 mod day_7;
 mod day_8;
+mod day_9;
+//mod day_24;
 
 fn main() {
     println!("Day 1: {}, {}", day_1::star_1(), day_1::star_2());
@@ -20,6 +29,26 @@ fn main() {
     println!("Day 6: {}, {}", day_6::star_1(), day_6::star_2());
     println!("Day 7: {}, {}", day_7::star_1(), day_7::star_2());
     println!("Day 8: {}, {}", day_8::star_1(), day_8::star_2());
-    day_10::star_1();
-    println!("Day 22: {}", day_22::star_1());
+    println!("Day 9: {}, {}", day_9::star_1(), day_9::star_2());
+    day_10::star_1_2();
+    print!("Day 11: {:?}", day_11::star_1());
+    println!(", {:?}", day_11::star_2());
+    print!("Day 12: {}", day_12::star_1());
+    println!(", {}", day_12::star_2());
+    print!("Day 13: {:?}", day_13::star_1());
+    println!(", {:?}", day_13::star_2());
+    print!("Day 14: {}", day_14::star_1());
+    println!(", {}", day_14::star_2());
+    print!("Day 16: {}", day_16::star_1());
+    println!(", {}", day_16::star_2());
+    print!("Day 18: {}", day_18::star_1());
+    println!(", {}", day_18::star_2());
+    print!("Day 19: {}", day_19::star_1());
+    println!(", {}", day_19::star_2());
+    print!("Day 22: {}", day_22::star_1());
+    println!(", {}", day_22::star_2());
+    print!("Day 23: {:?}", day_23::star_1());
+    // println!(", {:?}", day_23::star_2());
+    // println!("Day xx: {:?}", day_24::star_1());
+    //println!("Day xx: {:?}, {:?}", day_18::star_1(), day_18::star_2());
 }

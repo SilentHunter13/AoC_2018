@@ -55,15 +55,20 @@ fn play_marble_game(players: usize, marbles: usize) -> usize {
 fn new_position_get(board: &[Link], current: usize, steps: usize, direction: Direction) -> usize {
     let mut new_position = current;
 
-    for _ in 0..steps {
-        if let Some(marble) = board.get(new_position) {
-            new_position = match direction {
-                Direction::Forward => marble.clockwise,
-                Direction::Reverse => marble.counter_clockwise,
+    match direction {
+        Direction::Forward => {
+            for _ in 0..steps {
+                new_position = board[new_position].clockwise;
             }
+            new_position
+        }
+        Direction::Reverse => {
+            for _ in 0..steps {
+                new_position = board[new_position].counter_clockwise;
+            }
+            new_position
         }
     }
-    new_position
 }
 
 fn remove_marble(board: &mut Vec<Link>, index: usize) -> usize {

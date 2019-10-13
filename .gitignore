@@ -14,3 +14,9 @@
 **/*.rs.bk
 
 # End of https://www.gitignore.io/api/rust
+
+# Records of perf_events
+*perf*
+
+# Flamegraph output
+*.svg

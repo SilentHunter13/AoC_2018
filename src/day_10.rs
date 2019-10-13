@@ -9,7 +9,7 @@ struct Dot {
     y_dt: i32,
 }
 
-pub fn star_1() {
+pub fn star_1_2() {
     //1 X Pos; 2 Y Pos; 3 x Speed; 4 Y Speed
     let dot_re =
         Regex::new("position=< *(-?[0-9]+), *(-?[0-9]+)> velocity=< *(-?[0-9]+), *(-?[0-9]+)>")
