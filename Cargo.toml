@@ -1,6 +1,6 @@
 [package]
 name = "advent_of_code_2018"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["michael"]
 edition = "2018"
 
@@ -10,3 +10,6 @@ regex = "1"
 [profile.release]
 #debug = true
 lto = true
+
+[features]
+run_all = []

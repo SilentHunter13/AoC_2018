@@ -1,21 +1,42 @@
+#[cfg(feature = "run_all")]
 pub mod day_1;
+#[cfg(feature = "run_all")]
 pub mod day_10;
+#[cfg(feature = "run_all")]
 pub mod day_11;
+#[cfg(feature = "run_all")]
 pub mod day_12;
+#[cfg(feature = "run_all")]
 pub mod day_13;
+#[cfg(feature = "run_all")]
 pub mod day_14;
+#[cfg(feature = "run_all")]
 pub mod day_16;
+#[cfg(feature = "run_all")]
 pub mod day_18;
+#[cfg(feature = "run_all")]
 pub mod day_19;
+#[cfg(feature = "run_all")]
 pub mod day_2;
+#[cfg(feature = "run_all")]
+pub mod day_21;
+#[cfg(feature = "run_all")]
 pub mod day_22;
+#[cfg(feature = "run_all")]
 pub mod day_23;
+#[cfg(feature = "run_all")]
 pub mod day_3;
+#[cfg(feature = "run_all")]
 pub mod day_4;
+#[cfg(feature = "run_all")]
 pub mod day_5;
+#[cfg(feature = "run_all")]
 pub mod day_6;
+#[cfg(feature = "run_all")]
 pub mod day_7;
+#[cfg(feature = "run_all")]
 pub mod day_8;
+#[cfg(feature = "run_all")]
 pub mod day_9;
-
-//mod day_24;
+//#[cfg(feature = "run_all")]
+mod day_24;

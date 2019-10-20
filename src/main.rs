@@ -1,7 +1,23 @@
+#[cfg(feature = "run_all")]
 mod algorithms;
 mod days;
 
 fn main() {
+    #[cfg(feature = "run_all")]
+    run_all();
+
+    #[cfg(not(feature = "run_all"))]
+    run_one_day();
+}
+
+#[cfg(not(feature = "run_all"))]
+fn run_one_day() {
+    println!("Day xx: {:?}", days::day_21::star_1());
+    //println!(", {}", days::day_21::star_2());
+}
+
+#[cfg(feature = "run_all")]
+fn run_all() {
     print!("Day 1: {}", days::day_1::star_1());
     println!(", {}", days::day_1::star_2());
     print!("Day 2: {}", days::day_2::star_1());
@@ -35,10 +51,10 @@ fn main() {
     println!(", {}", days::day_18::star_2());
     print!("Day 19: {}", days::day_19::star_1());
     println!(", {}", days::day_19::star_2());
+    print!("Day 21: {}", days::day_21::star_1());
+    println!(); //", {}", days::day_21::star_2());
     print!("Day 22: {}", days::day_22::star_1());
     println!(", {}", days::day_22::star_2());
     print!("Day 23: {:?}", days::day_23::star_1());
-    // println!(", {:?}", day_23::star_2());
-    // println!("Day xx: {:?}", day_24::star_1());
-    //println!("Day xx: {:?}, {:?}", day_18::star_1(), day_18::star_2());
+    println!();
 }

@@ -34,26 +34,26 @@ pub fn star_1() -> usize {
     let mut a = 0;
 
     let mut b = a | 0x10000;
-    a = 0xA354F2;
+    a = 0x00A3_54F2;
 
     loop {
         let mut c = b & 0xFF;
-        a = a + c;
-        a = a & 0xFFFFFF;
-        a = a * 0x1016b;
-        a = a & 0xFFFFFF;
+        a += c;
+        a &= 0x00FF_FFFF;
+        a *= 0x1016b;
+        a &= 0x00FF_FFFF;
 
         if b >= 256 {
             c = 0;
             loop {
                 let mut d = c + 1;
-                d = d * 256;
+                d *= 256;
 
                 if d > b {
                     b = c;
                     break;
                 } else {
-                    c = c + 1;
+                    c += 1;
                 }
             }
         } else {
@@ -66,20 +66,20 @@ pub fn star_1() -> usize {
 
 pub fn star_2() -> usize {
     let mut a: u64 = 0;
-    let e = 12420065;
+    let e = 12_420_065;
     //let e = 0;
     let mut inst_counter = 0;
 
     loop {
         let mut b = a | 0x10000;
-        a = 0xA354F2;
+        a = 0x00A3_54F2;
 
         loop {
             let mut c = b & 0xFF;
-            a = a + c;
-            a = a & 0xFFFFFF;
-            a = a * 0x1016b;
-            a = a & 0xFFFFFF;
+            a += c;
+            a &= 0x00FF_FFFF;
+            a *= 0x1016b;
+            a &= 0x00FF_FFFF;
             //println!("a:{:?}  b:{:?}  c:{:?}", a, b, c);
 
             inst_counter += 8;
@@ -88,7 +88,7 @@ pub fn star_2() -> usize {
                 c = 0;
                 loop {
                     let mut d = c + 1;
-                    d = d * 256;
+                    d *= 256;
 
                     inst_counter += 5;
 
@@ -99,7 +99,7 @@ pub fn star_2() -> usize {
 
                         break;
                     } else {
-                        c = c + 1;
+                        c += 1;
 
                         inst_counter += 3;
                     }
