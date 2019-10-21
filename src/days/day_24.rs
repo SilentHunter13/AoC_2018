@@ -60,36 +60,43 @@ fn select_target(groups: &[Group]) -> Vec<(usize, usize, u32)> {
     let mut fights: Vec<(usize, usize, u32)> = Vec::new();
 
     for (a_index, attacker) in groups.iter().enumerate() {
-        let mut best_opponent_index: Option<usize> = None;
-        for (d_index, defender) in groups.iter().enumerate() {
-            //nicht gegen sichselbst und nur gegen Gegner kämpfen
-            if attacker.index != defender.index && attacker.infection != defender.infection {
-                let this_damage = get_damage(attacker, defender);
-                if let Some(best_opponent_index_) = best_opponent_index {
-                    let best_damage = get_damage(attacker, &groups[best_opponent_index_]);
-                    if this_damage > best_damage
-                        || (this_damage == best_damage
-                            && get_effective_power(defender)
-                                > get_effective_power(&groups[best_opponent_index_]))
-                        || (get_effective_power(defender)
-                            == get_effective_power(&groups[best_opponent_index_])
-                            && defender.initiative > groups[best_opponent_index_].initiative)
-                    {
-                        best_opponent_index = Some(d_index);
+        let mut best_opponent: Option<usize> = None;
+        for (d_index, defender) in groups
+            .iter()
+            .enumerate()
+            //nur gegen Gegner kämpfen
+            .filter(|(_, x)| x.infection != attacker.infection)
+        {
+            let this_damage = get_damage(attacker, defender);
+            if let Some(best_opponent_index) = best_opponent {
+                let best_damage = get_damage(attacker, &groups[best_opponent_index]);
+
+                if this_damage > best_damage
+                    || (this_damage == best_damage
+                        && get_effective_power(defender)
+                            > get_effective_power(&groups[best_opponent_index]))
+                    || (get_effective_power(defender)
+                        == get_effective_power(&groups[best_opponent_index])
+                        && defender.initiative > groups[best_opponent_index].initiative)
+                {
+                    //Jedes Ziel darf nur einmal gewählt werden
+                    let already_selected = fights.iter().any(|x| (x.1 == best_opponent_index));
+                    if !already_selected {
+                        best_opponent = Some(d_index);
                     }
-                } else if this_damage > 0 {
-                    best_opponent_index = Some(d_index);
+                }
+            } else if this_damage > 0 {
+                //Jedes Ziel darf nur einmal gewählt werden
+                let already_selected = fights.iter().any(|x| (x.1 == d_index));
+                if !already_selected {
+                    best_opponent = Some(d_index);
                 }
             }
         }
 
-        if let Some(best_opponent_index) = best_opponent_index {
-            //Jedes Ziel darf nur einmal gewählt werden
-            let already_selected = fights.iter().any(|x| (x.1 == best_opponent_index));
-            if !already_selected {
-                let fight = (a_index, best_opponent_index, attacker.initiative);
-                fights.push(fight);
-            }
+        if let Some(best_opponent_index) = best_opponent {
+            let fight = (a_index, best_opponent_index, attacker.initiative);
+            fights.push(fight);
         }
     }
     fights.sort_by_key(|x| Reverse(x.2));
