@@ -12,7 +12,7 @@ fn main() {
 
 #[cfg(not(feature = "run_all"))]
 fn run_one_day() {
-    println!("Day xx: {:?}", days::day_21::star_1());
+    println!("Day xx: {:?}", days::day_24::star_1());
     //println!(", {}", days::day_21::star_2());
 }
 

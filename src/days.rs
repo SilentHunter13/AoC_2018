@@ -39,4 +39,4 @@ pub mod day_8;
 #[cfg(feature = "run_all")]
 pub mod day_9;
 //#[cfg(feature = "run_all")]
-mod day_24;
+pub mod day_24;
