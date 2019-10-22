@@ -20,7 +20,27 @@ pub fn star_1() -> u32 {
     let contents =
         fs::read_to_string("./input/day_24.txt").expect("Something went wrong reading the file");
 
-    let mut groups = read_input(contents);
+    let groups = perform_battle(&contents, 0);
+    groups.iter().fold(0, |sum, x| sum + x.units)
+}
+
+pub fn star_2() -> u32 {
+    let contents =
+        fs::read_to_string("./input/day_24.txt").expect("Something went wrong reading the file");
+
+    let mut boost_value = 0;
+
+    loop {
+        let groups = perform_battle(&contents, boost_value);
+        if groups.iter().all(|x| !x.infection) {
+            break groups.iter().fold(0, |sum, x| sum + x.units);
+        }
+        boost_value += 1;
+    }
+}
+
+fn perform_battle(contents: &str, boost_value: u32) -> Vec<Group> {
+    let mut groups = read_input(&contents, boost_value);
 
     loop {
         //absteigend Sortieren nach Reihenfolge der Target Wahl
@@ -28,24 +48,27 @@ pub fn star_1() -> u32 {
         groups.sort_by_key(|x| Reverse(get_effective_power(&x)));
         let fights = select_target(&groups);
 
-        if fights.is_empty() {
-            break;
-        }
+        let units_lost = perform_figts(&fights, &mut groups);
 
-        perform_battle(&fights, &mut groups);
+        if fights.is_empty() || !units_lost {
+            break groups;
+        }
     }
-    groups.iter().fold(0, |sum, x| sum + x.units)
 }
 
-fn perform_battle(fights: &[(usize, usize, u32)], groups: &mut Vec<Group>) {
+fn perform_figts(fights: &[(usize, usize, u32)], groups: &mut Vec<Group>) -> bool {
+    let mut units_lost = false;
     for fight in fights {
         let damage = get_damage(&groups[fight.0], &groups[fight.1]);
 
         let lost_units = min(damage / groups[fight.1].hitpoints, groups[fight.1].units);
 
+        units_lost = units_lost || lost_units > 0;
+
         groups[fight.1].units -= lost_units;
     }
     groups.retain(|x| x.units > 0);
+    units_lost
 }
 
 //Erwartet, dass die Gruppen nach Wahlreihenfolge sortiert sind
@@ -110,7 +133,7 @@ fn get_damage(attacker: &Group, defender: &Group) -> u32 {
     }
 }
 
-fn read_input(input: String) -> Vec<Group> {
+fn read_input(input: &str, boost_value: u32) -> Vec<Group> {
     //1 units; 2 hitpoints; 3 weaknesses, immunities; 4 damage; 5 damage type; 6 initiative
     let group_re = Regex::new(
         "([0-9]+)[^0-9]+([0-9]+)[^0-9(]+(?:\\((.+)\\))?[^0-9]+([0-9]+) ([a-z]+) [^0-9]+([0-9]+)",
@@ -124,6 +147,7 @@ fn read_input(input: String) -> Vec<Group> {
     let weaknesses_re = Regex::new("weak to ([^;\n]+)").unwrap();
 
     let mut infection = false;
+    let mut boost = boost_value;
     let mut groups: Vec<Group> = Vec::new();
 
     for line in input.lines() {
@@ -134,7 +158,7 @@ fn read_input(input: String) -> Vec<Group> {
                 hitpoints: group_match[2].parse::<u32>().unwrap(),
                 weaknesses: Vec::new(),
                 immunities: Vec::new(),
-                damage: group_match[4].parse::<u32>().unwrap(),
+                damage: group_match[4].parse::<u32>().unwrap() + boost,
                 damage_type: group_match[5].to_string(),
                 initiative: group_match[6].parse::<u32>().unwrap(),
                 infection,
@@ -160,6 +184,9 @@ fn read_input(input: String) -> Vec<Group> {
             groups.push(new_group);
         } else {
             infection = line.contains("Infection");
+            if infection {
+                boost = 0;
+            }
         }
     }
     groups
