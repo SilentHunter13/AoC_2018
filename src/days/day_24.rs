@@ -26,7 +26,6 @@ pub fn star_1() -> u32 {
         //absteigend Sortieren nach Reihenfolge der Target Wahl
         groups.sort_by_key(|x| Reverse(x.initiative));
         groups.sort_by_key(|x| Reverse(get_effective_power(&x)));
-
         let fights = select_target(&groups);
 
         if fights.is_empty() {
@@ -35,7 +34,6 @@ pub fn star_1() -> u32 {
 
         perform_battle(&fights, &mut groups);
     }
-    println!("{:?}", groups);
     groups.iter().fold(0, |sum, x| sum + x.units)
 }
 
@@ -44,11 +42,6 @@ fn perform_battle(fights: &[(usize, usize, u32)], groups: &mut Vec<Group>) {
         let damage = get_damage(&groups[fight.0], &groups[fight.1]);
 
         let lost_units = min(damage / groups[fight.1].hitpoints, groups[fight.1].units);
-
-        // println!(
-        //     "{} v {} killing {}",
-        //     groups[fight.0].index, groups[fight.1].index, lost_units
-        // );
 
         groups[fight.1].units -= lost_units;
     }
@@ -73,14 +66,14 @@ fn select_target(groups: &[Group]) -> Vec<(usize, usize, u32)> {
 
                 if this_damage > best_damage
                     || (this_damage == best_damage
-                        && get_effective_power(defender)
-                            > get_effective_power(&groups[best_opponent_index]))
-                    || (get_effective_power(defender)
-                        == get_effective_power(&groups[best_opponent_index])
-                        && defender.initiative > groups[best_opponent_index].initiative)
+                        && (get_effective_power(defender)
+                            > get_effective_power(&groups[best_opponent_index])
+                            || (get_effective_power(defender)
+                                == get_effective_power(&groups[best_opponent_index])
+                                && defender.initiative > groups[best_opponent_index].initiative)))
                 {
                     //Jedes Ziel darf nur einmal gewählt werden
-                    let already_selected = fights.iter().any(|x| (x.1 == best_opponent_index));
+                    let already_selected = fights.iter().any(|x| (x.1 == d_index));
                     if !already_selected {
                         best_opponent = Some(d_index);
                     }
@@ -170,4 +163,290 @@ fn read_input(input: String) -> Vec<Group> {
         }
     }
     groups
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_damage() {
+        let attacker = Group {
+            index: 0,
+            units: 1,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 1,
+            infection: false,
+        };
+        let defender = Group {
+            index: 1,
+            units: 1,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 5,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+
+        let result = get_damage(&attacker, &defender);
+
+        assert_eq!(result, 10);
+    }
+
+    #[test]
+    fn test_get_damage_weakness() {
+        let attacker = Group {
+            index: 0,
+            units: 1,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 1,
+            infection: false,
+        };
+        let defender = Group {
+            index: 1,
+            units: 1,
+            hitpoints: 10,
+            weaknesses: vec![String::from("cold")],
+            immunities: Vec::new(),
+            damage: 5,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+
+        let result = get_damage(&attacker, &defender);
+
+        assert_eq!(result, 20);
+    }
+
+    #[test]
+    fn test_get_damage_immunity() {
+        let attacker = Group {
+            index: 0,
+            units: 1,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 1,
+            infection: false,
+        };
+        let defender = Group {
+            index: 1,
+            units: 1,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: vec![String::from("cold")],
+            damage: 5,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+
+        let result = get_damage(&attacker, &defender);
+
+        assert_eq!(result, 0);
+    }
+
+    #[test]
+    fn test_select_target_same_damage() {
+        let group1 = Group {
+            index: 0,
+            units: 3,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 1,
+            infection: false,
+        };
+        let group2 = Group {
+            index: 1,
+            units: 2,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+        let group3 = Group {
+            index: 1,
+            units: 1,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 3,
+            infection: true,
+        };
+
+        let groups = vec![group1, group2, group3];
+
+        let result = select_target(&groups);
+
+        let expected = vec![(1, 0, 2), (0, 1, 1)];
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_select_target_same_effective_power() {
+        let group1 = Group {
+            index: 0,
+            units: 3,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 1,
+            infection: false,
+        };
+        let group2 = Group {
+            index: 1,
+            units: 2,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+        let group3 = Group {
+            index: 1,
+            units: 2,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 3,
+            infection: true,
+        };
+
+        let groups = vec![group1, group2, group3];
+
+        let result = select_target(&groups);
+
+        let expected = vec![(1, 0, 2), (0, 2, 1)];
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_select_target() {
+        let group1 = Group {
+            index: 0,
+            units: 3,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 1,
+            infection: false,
+        };
+        let group2 = Group {
+            index: 1,
+            units: 2,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+        let group3 = Group {
+            index: 1,
+            units: 2,
+            hitpoints: 10,
+            weaknesses: vec![String::from("cold")],
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+
+        let groups = vec![group1, group2, group3];
+
+        let result = select_target(&groups);
+
+        let expected = vec![(1, 0, 2), (0, 2, 1)];
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_select_target_already_selectec() {
+        let group1 = Group {
+            index: 0,
+            units: 3,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 4,
+            infection: false,
+        };
+        let group4 = Group {
+            index: 3,
+            units: 3,
+            hitpoints: 5,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 1,
+            infection: false,
+        };
+        let group2 = Group {
+            index: 1,
+            units: 2,
+            hitpoints: 10,
+            weaknesses: Vec::new(),
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 3,
+            infection: true,
+        };
+        let group3 = Group {
+            index: 2,
+            units: 2,
+            hitpoints: 10,
+            weaknesses: vec![String::from("cold")],
+            immunities: Vec::new(),
+            damage: 10,
+            damage_type: String::from("cold"),
+            initiative: 2,
+            infection: true,
+        };
+
+        let groups = vec![group1, group4, group2, group3];
+
+        let result = select_target(&groups);
+
+        let expected = vec![(0, 3, 4), (2, 0, 3), (3, 1, 2), (1, 2, 1)];
+
+        assert_eq!(result, expected);
+    }
 }
