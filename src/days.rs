@@ -25,6 +25,10 @@ pub mod day_22;
 #[cfg(feature = "run_all")]
 pub mod day_23;
 #[cfg(feature = "run_all")]
+pub mod day_24;
+#[cfg(feature = "run_all")]
+pub mod day_25;
+#[cfg(feature = "run_all")]
 pub mod day_3;
 #[cfg(feature = "run_all")]
 pub mod day_4;
@@ -38,5 +42,3 @@ pub mod day_7;
 pub mod day_8;
 #[cfg(feature = "run_all")]
 pub mod day_9;
-//#[cfg(feature = "run_all")]
-pub mod day_24;
