@@ -1,10 +1,11 @@
+//     #ip 1
 // 0   seti 123 0 4        a = 123
 // 1   bani 4 456 4        a &= 456
 // 2   eqri 4 72 4         if a == 72
 // 3   addr 4 1 1          Sprung nach 5
 // 4   seti 0 0 1          else Sprung nach 1
-// 5   seti 0 0 4          a = 0
-// 6   bori 4 65536 5      b = a | 0x10000
+// 5   seti 0 0 4          a = 0                    Beginn des eigentlichen Programm
+// 6   bori 4 65536 5      b = a | 0x10000          b = 2^16
 // 7   seti 10704114 0 4   a = 0xA354F2
 // 8   bani 5 255 2        c = b & 0xFF
 // 9   addr 4 2 4          a = a + c
@@ -26,121 +27,56 @@
 // 25  seti 17 5 1         Sprung nach 18
 // 26  setr 2 6 5          b = c
 // 27  seti 7 8 1          Sprung nach 8
-// 28  eqrr 4 0 2          if a == e
+// 28  eqrr 4 0 2          if a == e                e ist Register 0
 // 29  addr 2 1 1          Ende
 // 30  seti 5 3 1          else Sprung nach 6
 
 pub fn star_1() -> usize {
-    let mut a = 0;
-
-    let mut b = a | 0x10000;
-    a = 0x00A3_54F2;
+    let mut a = 0x00A3_54F2;
+    let mut b = 0x10000;
 
     loop {
-        let mut c = b & 0xFF;
-        a += c;
-        a &= 0x00FF_FFFF;
-        a *= 0x1016b;
-        a &= 0x00FF_FFFF;
+        a += b & 0xFF; //a += b % 256;
+        a &= 0x00FF_FFFF; //a %= 16_777_216
+        a *= 0x1016b; //a *= 65_899
+        a &= 0x00FF_FFFF; //a %= 16_777_216
 
-        if b >= 256 {
-            c = 0;
-            loop {
-                let mut d = c + 1;
-                d *= 256;
-
-                if d > b {
-                    b = c;
-                    break;
-                } else {
-                    c += 1;
-                }
-            }
-        } else {
+        if b < 256 {
             break;
         }
+        b /= 256;
     }
 
     a
 }
 
 pub fn star_2() -> usize {
-    let mut a: u64 = 0;
-    let e = 12_420_065;
-    //let e = 0;
-    let mut inst_counter = 0;
+    let mut solutions = Vec::new();
+    let mut a: usize = 0;
 
     loop {
         let mut b = a | 0x10000;
+
         a = 0x00A3_54F2;
 
         loop {
-            let mut c = b & 0xFF;
-            a += c;
-            a &= 0x00FF_FFFF;
-            a *= 0x1016b;
-            a &= 0x00FF_FFFF;
-            //println!("a:{:?}  b:{:?}  c:{:?}", a, b, c);
+            a += b & 0xFF; //a += b % 256;
+            a &= 0x00FF_FFFF; //a %= 16_777_216
+            a *= 0x1016b; //a *= 65_899
+            a &= 0x00FF_FFFF; //a %= 16_777_216
 
-            inst_counter += 8;
-
-            if b >= 256 {
-                c = 0;
-                loop {
-                    let mut d = c + 1;
-                    d *= 256;
-
-                    inst_counter += 5;
-
-                    if d > b {
-                        //println!("b:{:?}  c:{:?}  d:{:?}", b, c, d);
-                        b = c;
-                        inst_counter += 4;
-
-                        break;
-                    } else {
-                        c += 1;
-
-                        inst_counter += 3;
-                    }
-                }
-            } else {
-                inst_counter += 3;
+            if b < 256 {
                 break;
             }
+            b /= 256;
         }
-        //println!("Inst: {:?}, {:?}", inst_counter, a);
-        if a == e {
+
+        //Es wird ein Zyklus erreicht
+        if solutions.contains(&a) {
             break;
         }
+        solutions.push(a);
     }
-    foo();
-    inst_counter
-}
 
-fn foo() {
-    let mut a: u64 = 0;
-    let e = 12420065;
-    //let e = 0;
-
-    loop {
-        let mut b = a | 0x10000;
-
-        a = 0xA354F2;
-        while b != 0 {
-            let c = b & 0xFF;
-            a = a + c;
-            a = a * 0x1016b;
-            a = a & 0xFFFFFF;
-
-            println!("{:?}", a);
-            b = b >> 8;
-        }
-
-        println!("Lösung: {:?}", a);
-        if a == e {
-            //println!("Lösung: {:?}", a);
-            break;
-        }
-    }
+    *solutions.last().expect("es muss ein letztes Element geben")
 }
