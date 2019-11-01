@@ -12,8 +12,8 @@ fn main() {
 
 #[cfg(not(feature = "run_all"))]
 fn run_one_day() {
-    print!("Day xx: {:?}", days::day_20::star_1());
-    println!(); //", {}", days::day_23::star_2());
+    //print!("Day xx: {:?}", days::day_20::star_1());
+    //println!(", {}", days::day_20::star_2());
 }
 
 #[cfg(feature = "run_all")]
@@ -51,6 +51,8 @@ fn run_all() {
     println!(", {}", days::day_18::star_2());
     print!("Day 19: {}", days::day_19::star_1());
     println!(", {}", days::day_19::star_2());
+    print!("Day 20: {}", days::day_20::star_1());
+    println!(", {}", days::day_20::star_2());
     print!("Day 21: {}", days::day_21::star_1());
     println!(", {}", days::day_21::star_2());
     print!("Day 22: {}", days::day_22::star_1());
