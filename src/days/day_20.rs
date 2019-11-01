@@ -1,8 +1,7 @@
+use std::collections::HashMap;
 use std::fs;
 
-const MAP_SIZE: usize = 250;
-
-#[derive(Default, Clone, Copy)]
+#[derive(Default)]
 struct Room {
     doors: [bool; 4],
     distance: usize,
@@ -26,15 +25,12 @@ impl Instruction {
 pub fn star_1() -> usize {
     let instructions = parse_instructions();
 
-    let mut map = [[Room {
-        doors: [false; 4],
-        distance: 0,
-    }; MAP_SIZE]; MAP_SIZE];
+    let mut map = HashMap::new();
 
-    let count = go(&instructions, 0, (MAP_SIZE / 2, MAP_SIZE / 2), &mut map);
+    let count = go(&instructions, 0, (0, 0), &mut map);
 
     println!("{:?}", count);
-    //show_map(&map, true);
+    show_map(&map, false);
 
     find_largest_distance(&map)
 }
@@ -135,8 +131,8 @@ fn parse_instructions() -> Vec<Instruction> {
 fn go(
     instructions: &[Instruction],
     start_index: usize,
-    start_position: (usize, usize),
-    map: &mut [[Room; MAP_SIZE]; MAP_SIZE],
+    start_position: (i32, i32),
+    map: &mut HashMap<(i32, i32), Room>,
 ) -> u32 {
     println!("{:?} {:?}", start_index, start_position);
     let position = go_steps(start_position, &instructions[start_index].steps, map);
@@ -149,40 +145,40 @@ fn go(
 }
 
 fn go_steps(
-    start: (usize, usize),
+    start: (i32, i32),
     instructions: &str,
-    map: &mut [[Room; MAP_SIZE]; MAP_SIZE],
-) -> (usize, usize) {
+    map: &mut HashMap<(i32, i32), Room>,
+) -> (i32, i32) {
     let mut position = start;
     for inst in instructions.chars() {
-        let mut old_room = &mut map[position.1][position.0];
+        let mut old_room = map.entry(position).or_default();
         let old_distance = old_room.distance;
         match inst {
             'N' => {
                 old_room.doors[0] = true;
                 position.1 += 1;
-                let mut new_room = &mut map[position.1][position.0];
+                let mut new_room = map.entry(position).or_default();
                 new_room.doors[2] = true;
                 new_room.distance = old_distance + 1;
             }
             'E' => {
                 old_room.doors[1] = true;
                 position.0 += 1;
-                let mut new_room = &mut map[position.1][position.0];
+                let mut new_room = map.entry(position).or_default();
                 new_room.doors[3] = true;
                 new_room.distance = old_distance + 1;
             }
             'S' => {
                 old_room.doors[2] = true;
                 position.1 -= 1;
-                let mut new_room = &mut map[position.1][position.0];
+                let mut new_room = map.entry(position).or_default();
                 new_room.doors[0] = true;
                 new_room.distance = old_distance + 1;
             }
             'W' => {
                 old_room.doors[3] = true;
                 position.0 -= 1;
-                let mut new_room = &mut map[position.1][position.0];
+                let mut new_room = map.entry(position).or_default();
                 new_room.doors[1] = true;
                 new_room.distance = old_distance + 1;
             }
@@ -192,53 +188,58 @@ fn go_steps(
     position
 }
 
-fn find_largest_distance(map: &[[Room; MAP_SIZE]; MAP_SIZE]) -> usize {
-    map.iter()
-        .map(|x| {
-            x.iter()
-                .max_by_key(|x| x.distance)
-                .expect("Es gibt kein Maximum!")
-                .distance
-        })
-        .max()
+fn find_largest_distance(map: &HashMap<(i32, i32), Room>) -> usize {
+    map.values()
+        .max_by_key(|x| x.distance)
         .expect("Es gibt kein Maximum!")
+        .distance
 }
 
-fn show_map(map: &[[Room; MAP_SIZE]; MAP_SIZE], show_distance: bool) {
+fn show_map(map: &HashMap<(i32, i32), Room>, show_distance: bool) {
+    let min_x = (map.iter().min_by_key(|x| (x.0).0).expect("gibts").0).0;
+    let min_y = (map.iter().min_by_key(|x| (x.0).1).expect("gibts").0).1;
+    let max_x = (map.iter().max_by_key(|x| (x.0).0).expect("gibts").0).0;
+    let max_y = (map.iter().max_by_key(|x| (x.0).1).expect("gibts").0).1;
+
     let mut line1 = String::new();
     let mut line2 = String::new();
 
-    for y in (0..MAP_SIZE).rev() {
-        for x in 0..MAP_SIZE {
-            let room: &Room = &map[y][x];
-
-            if room.doors.iter().all(|&x| !x) {
-                line1.push('#');
-                line1.push('#');
-                line2.push('#');
-                line2.push('#');
-            } else {
-                if x == MAP_SIZE / 2 && y == MAP_SIZE / 2 {
-                    line1.push('X');
-                } else if show_distance {
-                    line1.push(
-                        std::char::from_digit((room.distance % 10) as u32, 10)
-                            .expect("hat nur eine Stelle"),
-                    );
-                } else {
-                    line1.push('.');
-                }
-                if room.doors[1] {
-                    line1.push('|');
-                } else {
+    for y in (min_y..=max_y).rev() {
+        for x in min_x..=max_x {
+            if let Some(room) = map.get(&(x, y)) {
+                if room.doors.iter().all(|&x| !x) {
                     line1.push('#');
-                }
-
-                if room.doors[2] {
-                    line2.push('-');
+                    line1.push('#');
+                    line2.push('#');
+                    line2.push('#');
                 } else {
+                    if x == 0 && y == 0 {
+                        line1.push('X');
+                    } else if show_distance {
+                        line1.push(
+                            std::char::from_digit((room.distance % 10) as u32, 10)
+                                .expect("hat nur eine Stelle"),
+                        );
+                    } else {
+                        line1.push('.');
+                    }
+                    if room.doors[1] {
+                        line1.push('|');
+                    } else {
+                        line1.push('#');
+                    }
+
+                    if room.doors[2] {
+                        line2.push('-');
+                    } else {
+                        line2.push('#');
+                    }
                     line2.push('#');
                 }
+            } else {
+                line1.push('#');
+                line1.push('#');
+                line2.push('#');
                 line2.push('#');
             }
         }
@@ -274,12 +275,9 @@ fn go_performance() {
         },
     ];
 
-    let mut map = [[Room {
-        doors: [false; 4],
-        distance: 0,
-    }; MAP_SIZE]; MAP_SIZE];
+    let mut map = HashMap::new();
 
     for _ in 0..10_000 {
-        go(&instructions, 0, (MAP_SIZE / 2, MAP_SIZE / 2), &mut map);
+        go(&instructions, 0, (0, 0), &mut map);
     }
 }
