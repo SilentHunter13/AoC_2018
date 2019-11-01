@@ -30,7 +30,7 @@ pub fn star_1() -> usize {
     let count = go(&instructions, 0, (0, 0), &mut map);
 
     println!("{:?}", count);
-    show_map(&map, false);
+    //show_map(&map, false);
 
     find_largest_distance(&map)
 }
@@ -42,7 +42,7 @@ struct State {
 }
 
 fn parse_instructions() -> Vec<Instruction> {
-    let contents = fs::read_to_string("./input/day_20_test.txt")
+    let contents = fs::read_to_string("./input/day_20_test5.txt")
         .expect("Something went wrong reading the file");
 
     let mut instructions: Vec<Instruction> = vec![Instruction::new()];
@@ -74,14 +74,15 @@ fn parse_instructions() -> Vec<Instruction> {
                 state.alternatives_end.push(current_index);
                 current_index = instructions.len();
                 state.alternatives_start.push(current_index);
-
                 instructions.push(Instruction::new());
             }
             ')' => {
-                state.alternatives_end.push(current_index);
-                current_index = instructions.len();
+                if !instructions[current_index].steps.is_empty() {
+                    state.alternatives_end.push(current_index);
+                    current_index = instructions.len();
+                    instructions.push(Instruction::new());
+                }
 
-                instructions.push(Instruction::new());
                 for alt in state.alternatives_start {
                     instructions[state.predecessor].successors.push(alt);
                 }
@@ -91,6 +92,16 @@ fn parse_instructions() -> Vec<Instruction> {
 
                 state = state_stack.pop().expect("Es ist keine Klammer offen!");
             }
+            '$' => {
+                if instructions[current_index].steps.is_empty() {
+                    instructions.pop();
+                    for inst in &mut instructions {
+                        if inst.successors.contains(&current_index) {
+                            inst.successors.retain(|&x| x != current_index);
+                        }
+                    }
+                }
+            }
             'N' | 'E' | 'S' | 'W' => {
                 instructions[current_index].steps.push(char);
             }
@@ -98,33 +109,33 @@ fn parse_instructions() -> Vec<Instruction> {
         }
     }
 
-    loop {
-        let mut empty_inst: Option<(usize, usize)> = None;
-        //leere Instruktionen entfernen
-        for (index, inst) in instructions.iter().enumerate() {
-            if inst.steps.is_empty() && inst.successors.len() == 1 {
-                empty_inst = Some((index, inst.successors[0]));
-                break;
-            }
-        }
-
-        if let Some((index, successor)) = empty_inst {
-            instructions[index].steps.push('X');
-            for inst in &mut instructions {
-                if inst.successors.contains(&index) {
-                    inst.successors.retain(|&x| x != index);
-                    inst.successors.push(successor);
-                }
-            }
-        } else {
-            break;
-        }
-    }
-    let last = instructions.len() - 1;
-    for inst in &mut instructions {
-        inst.successors.retain(|&x| x != last);
-    }
-    //println!("{:?}", instructions);
+    // loop {
+    //     let mut empty_inst: Option<(usize, usize)> = None;
+    //     //leere Instruktionen entfernen
+    //     for (index, inst) in instructions.iter().enumerate() {
+    //         if inst.steps.is_empty() && inst.successors.len() == 1 {
+    //             empty_inst = Some((index, inst.successors[0]));
+    //             break;
+    //         }
+    //     }
+    //
+    //     if let Some((index, successor)) = empty_inst {
+    //         instructions[index].steps.push('X');
+    //         for inst in &mut instructions {
+    //             if inst.successors.contains(&index) {
+    //                 inst.successors.retain(|&x| x != index);
+    //                 inst.successors.push(successor);
+    //             }
+    //         }
+    //     } else {
+    //         break;
+    //     }
+    // }
+    // let last = instructions.len() - 1;
+    // for inst in &mut instructions {
+    //     inst.successors.retain(|&x| x != last);
+    // }
+    println!("{:?}", instructions);
     instructions
 }
 
@@ -134,7 +145,7 @@ fn go(
     start_position: (i32, i32),
     map: &mut HashMap<(i32, i32), Room>,
 ) -> u32 {
-    println!("{:?} {:?}", start_index, start_position);
+    println!("{:?}", start_index);
     let position = go_steps(start_position, &instructions[start_index].steps, map);
     let mut count = 1;
 
@@ -218,7 +229,7 @@ fn show_map(map: &HashMap<(i32, i32), Room>, show_distance: bool) {
                     } else if show_distance {
                         line1.push(
                             std::char::from_digit((room.distance % 10) as u32, 10)
-                                .expect("hat nur eine Stelle"),
+                                .expect("mehr als eine Stelle"),
                         );
                     } else {
                         line1.push('.');
