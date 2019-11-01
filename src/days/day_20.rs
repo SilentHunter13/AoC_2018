@@ -1,6 +1,6 @@
 use std::fs;
 
-const MAP_SIZE: usize = 500;
+const MAP_SIZE: usize = 250;
 
 #[derive(Default, Clone, Copy)]
 struct Room {
@@ -10,14 +10,14 @@ struct Room {
 
 #[derive(Debug)]
 struct Instruction {
-    instructions: String,
+    steps: String,
     successors: Vec<usize>,
 }
 
 impl Instruction {
     pub fn new() -> Instruction {
         Instruction {
-            instructions: String::new(),
+            steps: String::new(),
             successors: Vec::new(),
         }
     }
@@ -31,8 +31,9 @@ pub fn star_1() -> usize {
         distance: 0,
     }; MAP_SIZE]; MAP_SIZE];
 
-    go(&instructions, 0, (MAP_SIZE / 2, MAP_SIZE / 2), &mut map);
+    let count = go(&instructions, 0, (MAP_SIZE / 2, MAP_SIZE / 2), &mut map);
 
+    println!("{:?}", count);
     //show_map(&map, true);
 
     find_largest_distance(&map)
@@ -45,8 +46,8 @@ struct State {
 }
 
 fn parse_instructions() -> Vec<Instruction> {
-    let contents =
-        fs::read_to_string("./input/day_20.txt").expect("Something went wrong reading the file");
+    let contents = fs::read_to_string("./input/day_20_test.txt")
+        .expect("Something went wrong reading the file");
 
     let mut instructions: Vec<Instruction> = vec![Instruction::new()];
 
@@ -95,31 +96,61 @@ fn parse_instructions() -> Vec<Instruction> {
                 state = state_stack.pop().expect("Es ist keine Klammer offen!");
             }
             'N' | 'E' | 'S' | 'W' => {
-                instructions[current_index].instructions.push(char);
+                instructions[current_index].steps.push(char);
             }
             _ => {}
         }
+    }
+
+    loop {
+        let mut empty_inst: Option<(usize, usize)> = None;
+        //leere Instruktionen entfernen
+        for (index, inst) in instructions.iter().enumerate() {
+            if inst.steps.is_empty() && inst.successors.len() == 1 {
+                empty_inst = Some((index, inst.successors[0]));
+                break;
+            }
+        }
+
+        if let Some((index, successor)) = empty_inst {
+            instructions[index].steps.push('X');
+            for inst in &mut instructions {
+                if inst.successors.contains(&index) {
+                    inst.successors.retain(|&x| x != index);
+                    inst.successors.push(successor);
+                }
+            }
+        } else {
+            break;
+        }
+    }
+    let last = instructions.len() - 1;
+    for inst in &mut instructions {
+        inst.successors.retain(|&x| x != last);
     }
     //println!("{:?}", instructions);
     instructions
 }
 
 fn go(
-    instructions: &Vec<Instruction>,
+    instructions: &[Instruction],
     start_index: usize,
     start_position: (usize, usize),
     map: &mut [[Room; MAP_SIZE]; MAP_SIZE],
-) {
-    let position = go_steps(start_position, &instructions[start_index].instructions, map);
+) -> u32 {
+    println!("{:?} {:?}", start_index, start_position);
+    let position = go_steps(start_position, &instructions[start_index].steps, map);
+    let mut count = 1;
 
     for successor in &instructions[start_index].successors {
-        go(&instructions, *successor, position, map);
+        count += go(&instructions, *successor, position, map);
     }
+    count
 }
 
 fn go_steps(
     start: (usize, usize),
-    instructions: &String,
+    instructions: &str,
     map: &mut [[Room; MAP_SIZE]; MAP_SIZE],
 ) -> (usize, usize) {
     let mut position = start;
@@ -179,7 +210,7 @@ fn show_map(map: &[[Room; MAP_SIZE]; MAP_SIZE], show_distance: bool) {
 
     for y in (0..MAP_SIZE).rev() {
         for x in 0..MAP_SIZE {
-            let room = map[y][x];
+            let room: &Room = &map[y][x];
 
             if room.doors.iter().all(|&x| !x) {
                 line1.push('#');
@@ -189,15 +220,13 @@ fn show_map(map: &[[Room; MAP_SIZE]; MAP_SIZE], show_distance: bool) {
             } else {
                 if x == MAP_SIZE / 2 && y == MAP_SIZE / 2 {
                     line1.push('X');
+                } else if show_distance {
+                    line1.push(
+                        std::char::from_digit((room.distance % 10) as u32, 10)
+                            .expect("hat nur eine Stelle"),
+                    );
                 } else {
-                    if show_distance {
-                        line1.push(
-                            std::char::from_digit((room.distance % 10) as u32, 10)
-                                .expect("hat nur eine Stelle"),
-                        );
-                    } else {
-                        line1.push('.');
-                    }
+                    line1.push('.');
                 }
                 if room.doors[1] {
                     line1.push('|');
@@ -217,5 +246,40 @@ fn show_map(map: &[[Room; MAP_SIZE]; MAP_SIZE], show_distance: bool) {
         println!("{}", line2);
         line1.clear();
         line2.clear();
+    }
+}
+
+#[test]
+fn go_performance() {
+    let instructions = vec![
+        Instruction {
+            steps: "ENWWW".to_string(),
+            successors: vec![1, 2],
+        },
+        Instruction {
+            steps: "NEEE".to_string(),
+            successors: vec![],
+        },
+        Instruction {
+            steps: "SSE".to_string(),
+            successors: vec![3, 4],
+        },
+        Instruction {
+            steps: "EE".to_string(),
+            successors: vec![],
+        },
+        Instruction {
+            steps: "N".to_string(),
+            successors: vec![],
+        },
+    ];
+
+    let mut map = [[Room {
+        doors: [false; 4],
+        distance: 0,
+    }; MAP_SIZE]; MAP_SIZE];
+
+    for _ in 0..10_000 {
+        go(&instructions, 0, (MAP_SIZE / 2, MAP_SIZE / 2), &mut map);
     }
 }
