@@ -1,3 +1,4 @@
+use core::cmp::Reverse;
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::VecDeque;
@@ -40,8 +41,9 @@ pub fn star_1() -> u32 {
         let mut died = HashSet::new();
 
         for mut starter in running_order {
+            full_round = targets_available(&map);
+            //println!("F {:?}", full_round);
             if !died.contains(&starter) {
-                full_round = targets_available(&map);
                 //Bewegen
                 if let Some(target) = find_nearest_target(&map, starter) {
                     //Schritt machen
@@ -52,11 +54,11 @@ pub fn star_1() -> u32 {
                     }
                 }
 
-                //Angreifen
+                //Kämpfen
                 if let Some(defender_loc) = get_weakest_opponent_in_range(&map, &starter) {
                     if let Entity::Fighter(mut defender) = &mut map[defender_loc.1][defender_loc.0]
                     {
-                        println!("A{:?} D{:?}", starter, defender_loc);
+                        //println!("A{:?} D{:?}", starter, defender_loc);
                         if defender.hit_points <= ATTACK_POWER {
                             map[defender_loc.1][defender_loc.0] = Entity::Area(AreaType::Cavern);
                             died.insert(defender_loc);
@@ -69,13 +71,13 @@ pub fn star_1() -> u32 {
             }
         }
         show_map(&map);
+        if full_round {
+            rounds += 1;
+            println!("{:?}", rounds);
+        }
         if !targets_available(&map) {
             break;
         }
-        if full_round {
-            rounds += 1;
-        }
-        println!("{:?}", rounds);
     }
     calculate_outcome(&map, rounds)
 }
@@ -190,6 +192,7 @@ fn find_nearest_target(map: &[Vec<Entity>], start: (usize, usize)) -> Option<(us
             let mut tentative: VecDeque<(usize, usize)> = VecDeque::new();
             let mut visited: HashMap<(usize, usize), (usize, usize)> = HashMap::new();
             let mut ret_val = None;
+            let mut possibilities = Vec::new();
 
             visited.insert(start, (0, 0));
             tentative.push_back(start);
@@ -200,15 +203,17 @@ fn find_nearest_target(map: &[Vec<Entity>], start: (usize, usize)) -> Option<(us
                         visited.insert(neighbour, this);
                         if let Entity::Fighter(n) = map[neighbour.1][neighbour.0] {
                             if is_opponent(&starter, &n) {
-                                let mut predecessor = neighbour;
                                 //Backtracking
+                                let mut predecessor = neighbour;
+                                let mut steps = 0;
                                 loop {
                                     let pre_predecessor =
                                         *visited.get(&predecessor).expect("kein Vorgänger!");
                                     if pre_predecessor == start {
-                                        ret_val = Some(predecessor);
-                                        break 'outer;
+                                        possibilities.push((neighbour, predecessor, steps));
+                                        break;
                                     }
+                                    steps += 1;
                                     predecessor = pre_predecessor;
                                 }
                             }
@@ -217,6 +222,14 @@ fn find_nearest_target(map: &[Vec<Entity>], start: (usize, usize)) -> Option<(us
                         }
                     }
                 }
+            }
+
+            possibilities.sort_by_key(|x| Reverse((x.0).0));
+            possibilities.sort_by_key(|x| Reverse((x.0).1));
+            possibilities.sort_by_key(|x| Reverse(x.2));
+
+            if let Some(r) = possibilities.pop() {
+                ret_val = Some(r.1);
             }
             ret_val
         }
