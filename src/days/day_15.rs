@@ -33,7 +33,6 @@ enum Entity {
 
 pub fn star_1() -> u32 {
     let mut map = read_map();
-    show_map(&map);
     let mut full_round = false;
     let mut rounds = 0;
     loop {
@@ -42,7 +41,6 @@ pub fn star_1() -> u32 {
 
         for mut starter in running_order {
             full_round = targets_available(&map);
-            //println!("F {:?}", full_round);
             if !died.contains(&starter) {
                 //Bewegen
                 if let Some(target) = find_nearest_target(&map, starter) {
@@ -58,7 +56,6 @@ pub fn star_1() -> u32 {
                 if let Some(defender_loc) = get_weakest_opponent_in_range(&map, &starter) {
                     if let Entity::Fighter(mut defender) = &mut map[defender_loc.1][defender_loc.0]
                     {
-                        //println!("A{:?} D{:?}", starter, defender_loc);
                         if defender.hit_points <= ATTACK_POWER {
                             map[defender_loc.1][defender_loc.0] = Entity::Area(AreaType::Cavern);
                             died.insert(defender_loc);
@@ -70,12 +67,82 @@ pub fn star_1() -> u32 {
                 }
             }
         }
-        show_map(&map);
         if full_round {
             rounds += 1;
-            println!("{:?}", rounds);
         }
         if !targets_available(&map) {
+            break;
+        }
+    }
+    calculate_outcome(&map, rounds)
+}
+
+pub fn star_2() -> u32 {
+    let mut map;
+    let mut elf_power = 4;
+    let mut rounds;
+
+    loop {
+        let mut full_round = false;
+        rounds = 0;
+        let mut elf_died = false;
+        map = read_map();
+
+        loop {
+            let running_order = get_running_order(&map);
+            let mut died = HashSet::new();
+
+            for mut starter in running_order {
+                full_round = targets_available(&map);
+                if !died.contains(&starter) {
+                    //Bewegen
+                    if let Some(target) = find_nearest_target(&map, starter) {
+                        //Schritt machen
+                        if map[target.1][target.0] == Entity::Area(AreaType::Cavern) {
+                            map[target.1][target.0] = map[starter.1][starter.0];
+                            map[starter.1][starter.0] = Entity::Area(AreaType::Cavern);
+                            starter = target;
+                        }
+                    }
+
+                    //Kämpfen
+                    if let Some(defender_loc) = get_weakest_opponent_in_range(&map, &starter) {
+                        if let Entity::Fighter(mut defender) =
+                            &mut map[defender_loc.1][defender_loc.0]
+                        {
+                            //Prüfung auf defender deshalb genau gegenteilig
+                            if defender.party == Party::Elf {
+                                if defender.hit_points <= ATTACK_POWER {
+                                    elf_died = true;
+                                } else {
+                                    defender.hit_points -= ATTACK_POWER;
+                                    map[defender_loc.1][defender_loc.0] = Entity::Fighter(defender);
+                                }
+                            } else {
+                                if defender.hit_points <= elf_power {
+                                    map[defender_loc.1][defender_loc.0] =
+                                        Entity::Area(AreaType::Cavern);
+                                    died.insert(defender_loc);
+                                } else {
+                                    defender.hit_points -= elf_power;
+                                    map[defender_loc.1][defender_loc.0] = Entity::Fighter(defender);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if full_round {
+                rounds += 1;
+            }
+            if !targets_available(&map) || elf_died {
+                break;
+            }
+        }
+
+        if elf_died {
+            elf_power += 1;
+        } else {
             break;
         }
     }
@@ -121,7 +188,6 @@ fn calculate_outcome(map: &[Vec<Entity>], rounds: u32) -> u32 {
             }
         }
     }
-    println!("{:?} {:?}", hit_points, rounds);
 
     hit_points * rounds
 }
