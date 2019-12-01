@@ -9,7 +9,7 @@ fn main() {
     run_one_day();
 }
 
-#[cfg(not(feature = "run_one"))]
+#[cfg(feature = "run_one")]
 fn run_one_day() {
     println!("Day xx: {:?}", days::day_23::star_1());
     println!(", {}", days::day_23::star_2());

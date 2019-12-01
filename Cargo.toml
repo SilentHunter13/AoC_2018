@@ -8,8 +8,7 @@ edition = "2018"
 regex = "1"
 
 [profile.release]
-#debug = true
 lto = true
 
 [features]
-run_all = []
+run_one = []
